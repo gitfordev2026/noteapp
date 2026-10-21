@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { useApp } from '@/context/AppContext';
 import { 
   Lock, 
@@ -68,7 +68,7 @@ export default function PinScreen() {
   const [showPin, setShowPin] = useState(false);
   const [particles, setParticles] = useState<Array<{x: number; y: number; size: number; speed: number; opacity: number}>>([]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const animationRef = useRef<number>();
+  const animationRef = useRef<number | undefined>(undefined);
 
   // Create neural network background animation
   useEffect(() => {
@@ -173,13 +173,24 @@ export default function PinScreen() {
 
   useEffect(() => {
     const animateParticles = () => {
-      setParticles(prev => prev.map(p => ({
-        ...p,
-        y: p.y - p.speed,
-        x: p.x + Math.sin(Date.now() * 0.001 + p.x) * 0.2,
-        opacity: p.y < 0 ? Math.random() * 0.5 + 0.1 : p.opacity,
-        y: p.y < 0 ? window.innerHeight : p.y,
-      })));
+      setParticles(prev => prev.map(p => {
+        const newY = p.y - p.speed;
+        const newX = p.x + Math.sin(Date.now() * 0.001 + p.x) * 0.2;
+        if (newY < 0) {
+          return {
+            ...p,
+            y: window.innerHeight,
+            x: newX,
+            opacity: Math.random() * 0.5 + 0.1,
+          };
+        }
+        return {
+          ...p,
+          y: newY,
+          x: newX,
+          opacity: p.opacity,
+        };
+      }));
       requestAnimationFrame(animateParticles);
     };
     animateParticles();
@@ -204,7 +215,7 @@ export default function PinScreen() {
 
   const currentNote = RELEASE_NOTES[0];
 
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0, y: 30 },
     visible: {
       opacity: 1,
@@ -216,12 +227,12 @@ export default function PinScreen() {
     },
   };
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { opacity: 0, y: 20 },
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] },
+      transition: { duration: 0.5, ease: "easeOut" as const },
     },
   };
 
