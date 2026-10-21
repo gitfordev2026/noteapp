@@ -1,147 +1,36 @@
-# Secure Note App 🔐
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-A privacy-first, encrypted note-taking application with PIN authentication, built for personal use. All data is encrypted at rest using AES-GCM with keys derived from your PIN via PBKDF2.
+## Getting Started
 
-## Features
-
-- 🔒 **PIN-protected encryption** - Your data is encrypted with a key derived from your PIN
-- 📝 **Encrypted notes** - Create, read, update, delete, search, pin, and tag notes
-- 📁 **Encrypted file storage** - Store any file type with metadata (tags, descriptions)
-- 🔍 **Full-text search** - Search across note titles and content
-- 📌 **Pin important notes** - Keep critical notes at the top
-- 🏷️ **Tagging system** - Organize with custom tags
-- 💾 **Persistent storage** - Data survives app restarts
-- 🔄 **PIN change** - Change your PIN without losing data
-- 📊 **Statistics** - View storage usage and counts
-
-## Security Architecture
-
-```
-PIN → PBKDF2-HMAC-SHA256 (600,000 iterations) → Salt + Hash
-                    ↓
-            HKDF-SHA256 → Master Encryption Key (256-bit)
-                    ↓
-            AES-GCM (per-note/file nonce) → Encrypted Data
-```
-
-- **PIN hashing**: PBKDF2 with 600,000 iterations, 32-byte salt
-- **Key derivation**: HKDF from PIN-derived key
-- **Encryption**: AES-256-GCM with unique 96-bit nonce per item
-- **Authentication**: Associated data binds encryption to note/file ID
-- **File permissions**: All data files stored with 0600 permissions
-
-## Installation
+First, run the development server:
 
 ```bash
-cd /home/ubuntu/.openclaw/workspace/noteapp
-# No additional dependencies beyond Python 3.8+ and cryptography
-pip3 install cryptography
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
 ```
 
-## Usage
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-### Interactive CLI
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-```bash
-python3 -m src.app
-```
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-First run: creates PIN and initializes encrypted storage.
-Subsequent runs: enter PIN to unlock.
+## Learn More
 
-### Programmatic API
+To learn more about Next.js, take a look at the following resources:
 
-```python
-from src.app import NoteApp
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-app = NoteApp("/path/to/data")
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-# Initialize (first time)
-app.initialize("your-pin")
+## Deploy on Vercel
 
-# Unlock (subsequent uses)
-app.unlock("your-pin")
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-# Notes
-note = app.create_note("Title", "Content", tags=["work"])
-note = app.get_note(note.id)  # Returns decrypted content
-app.update_note(note.id, title="New Title")
-app.delete_note(note.id)
-notes = app.list_notes()
-results = app.search_notes("query")
-
-# Files
-file_entry = app.add_file("/path/to/file.pdf", tags=["doc"])
-app.get_file(file_entry.id, "/output/path.pdf")
-app.delete_file(file_entry.id)
-files = app.list_files()
-
-# Lock when done
-app.lock()
-```
-
-### Commands (Interactive Mode)
-
-| Command | Description |
-|---------|-------------|
-| `help` | Show all commands |
-| `notes` | List all notes |
-| `newnote` | Create a new note |
-| `view <id>` | View a note (decrypted) |
-| `edit <id>` | Edit a note |
-| `delete <id>` | Delete a note |
-| `search <query>` | Search notes |
-| `files` | List all files |
-| `addfile <path>` | Add a file |
-| `getfile <id> <out>` | Retrieve a file |
-| `delfile <id>` | Delete a file |
-| `stats` | Show statistics |
-| `changepin` | Change PIN |
-| `lock` | Lock the app |
-| `quit` | Exit |
-
-## Data Structure
-
-```
-data/
-├── pin_data.json          # PIN hash + salt (0600)
-├── metadata.json          # App metadata (0600)
-├── notes_index.json       # Note index for fast listing (0600)
-├── files_index.json       # File index for fast listing (0600)
-├── notes/
-│   └── {note-id}.json     # Encrypted note content (0600)
-└── files/
-    └── {file-id}          # Encrypted file content (0600)
-```
-
-## Testing
-
-```bash
-python3 -c "
-import sys
-sys.path.insert(0, 'src')
-import tests.test_noteapp
-tests.test_noteapp.run_tests()
-"
-```
-
-All 54 tests pass covering:
-- PIN management (hashing, verification, changing)
-- Encryption/decryption (AES-GCM, associated data, tamper detection)
-- Secure storage (initialize, unlock, lock, change PIN)
-- Data models (serialization, CRUD)
-- Data persistence (notes, files, metadata, indexes)
-- Full app integration (notes, files, search, stats, PIN change)
-- Security integration (persistence, wrong PIN rejection, disk encryption verification)
-
-## Security Notes
-
-- **Never share your PIN** - It's the only key to your data
-- **No backdoors** - Without the PIN, data is cryptographically inaccessible
-- **Memory protection** - Keys cleared on `lock()` call
-- **Audit the code** - All crypto uses standard `cryptography` library primitives
-- **Backup strategy** - Copy the entire `data/` directory for backups (still encrypted)
-
-## License
-
-Personal use only. Built with security-first principles.
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
