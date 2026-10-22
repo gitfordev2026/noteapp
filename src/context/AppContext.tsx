@@ -146,7 +146,7 @@ interface AppContextType extends AppState {
   exportBackup: () => Promise<string>;
   importBackup: (json: string) => Promise<void>;
   // Util
-  clearError: () => void;
+  clearError: (message?: string) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -171,7 +171,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     init();
   }, []);
 
-  const clearError = () => dispatch({ type: 'SET_ERROR', payload: null });
+  const clearError = (message?: string) => dispatch({ type: 'SET_ERROR', payload: null });
 
   const initialize = async (pin: string) => {
     dispatch({ type: 'SET_LOADING', payload: true });
