@@ -166,6 +166,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         });
       } catch (e) {
         dispatch({ type: 'SET_ERROR', payload: 'Failed to initialize app' });
+        dispatch({ type: 'SET_LOADING', payload: false });
       }
     }
     init();
