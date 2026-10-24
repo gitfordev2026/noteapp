@@ -85,6 +85,7 @@ function reducer(state: AppState, action: Action): AppState {
     case 'UNLOCK_SUCCESS':
       return {
         ...state,
+        isInitialized: true,
         isUnlocked: true,
         encryptionKey: action.payload.key,
         pinHash: action.payload.pinHash,
@@ -187,6 +188,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       dispatch({ type: 'UNLOCK_SUCCESS', payload: { key, pinHash } });
       dispatch({ type: 'SET_NOTES', payload: [] });
       dispatch({ type: 'SET_FILES', payload: [] });
+      dispatch({ type: 'SET_LOADING', payload: false });
     } catch (e) {
       dispatch({ type: 'SET_ERROR', payload: 'Failed to initialize' });
       dispatch({ type: 'SET_LOADING', payload: false });
@@ -216,6 +218,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const [notes, files] = await Promise.all([loadNotesData(key), loadFilesData(key)]);
       dispatch({ type: 'SET_NOTES', payload: notes });
       dispatch({ type: 'SET_FILES', payload: files });
+      dispatch({ type: 'SET_LOADING', payload: false });
     } catch (e) {
       dispatch({ type: 'SET_ERROR', payload: e instanceof Error ? e.message : 'Failed to unlock' });
       dispatch({ type: 'SET_LOADING', payload: false });
