@@ -74,17 +74,17 @@ export default function NoteView({ noteId, onClose }: { noteId: string; onClose:
   });
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-      <div className="bg-white rounded-xl shadow-xl max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal max-w-3xl max-h-[90vh]" onClick={e => e.stopPropagation()}>
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200">
+        <div className="modal-header">
           <div className="flex items-center gap-3">
-            <button onClick={onClose} className="p-2 rounded-lg hover:bg-gray-100">
+            <button onClick={onClose} className="modal-close" aria-label="Close">
               <X className="w-5 h-5" />
             </button>
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900">{isEditing ? editTitle || 'Untitled' : note.title || 'Untitled'}</h3>
-              <div className="flex items-center gap-2 text-xs text-gray-500">
+            <div className="flex-1 min-w-0">
+              <h3 className="modal-title truncate">{isEditing ? editTitle || 'Untitled' : note.title || 'Untitled'}</h3>
+              <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
                 <span>Created: {formatDate(note.createdAt)}</span>
                 <span>•</span>
                 <span>Updated: {formatDate(note.updatedAt)}</span>
@@ -101,7 +101,7 @@ export default function NoteView({ noteId, onClose }: { noteId: string; onClose:
               <>
                 <button
                   onClick={() => setIsEditing(true)}
-                  className="p-2 rounded-lg hover:bg-gray-100 text-gray-600 transition-colors"
+                  className="icon-button"
                   title="Edit"
                 >
                   <Edit2 className="w-5 h-5" />
@@ -109,7 +109,7 @@ export default function NoteView({ noteId, onClose }: { noteId: string; onClose:
                 <button
                   onClick={handleDelete}
                   disabled={deleting}
-                  className="p-2 rounded-lg hover:bg-red-50 text-red-600 transition-colors"
+                  className="icon-button text-destructive hover:bg-destructive hover:text-on-destructive"
                   title="Delete"
                 >
                   <Trash2 className="w-5 h-5" />
@@ -126,14 +126,14 @@ export default function NoteView({ noteId, onClose }: { noteId: string; onClose:
                     setIsPinned(note.isPinned);
                     setIsEditing(false);
                   }}
-                  className="px-3 py-1.5 text-gray-700 hover:bg-gray-100 rounded-lg text-sm transition-colors"
+                  className="btn btn-ghost"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleSave}
                   disabled={saving || !editTitle.trim()}
-                  className="px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 text-sm"
+                  className="btn btn-primary"
                 >
                   {saving ? 'Saving...' : 'Save'}
                 </button>
@@ -143,59 +143,60 @@ export default function NoteView({ noteId, onClose }: { noteId: string; onClose:
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-4">
+        <div className="modal-body flex-1 overflow-y-auto">
           {isEditing ? (
             <form onSubmit={handleSave} className="space-y-4 h-full">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+              <div className="form-group">
+                <label className="form-label">Title</label>
                 <input
                   type="text"
                   value={editTitle}
                   onChange={(e) => setEditTitle(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                  className="input"
                   placeholder="Note title"
                 />
               </div>
-              <div className="flex-1 min-h-0">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Content</label>
+              <div className="form-group flex-1 min-h-0">
+                <label className="form-label">Content</label>
                 <textarea
                   value={editContent}
                   onChange={(e) => setEditContent(e.target.value)}
-                  className="w-full h-[calc(100%-100px)] min-h-[300px] px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none font-mono text-sm resize-none"
+                  className="input font-mono text-sm resize-none"
+                  rows={15}
                   placeholder="Write your note..."
                 />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Tags (comma separated)</label>
+              <div className="form-group">
+                <label className="form-label">Tags (comma separated)</label>
                 <input
                   type="text"
                   value={editTags}
                   onChange={(e) => setEditTags(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                  className="input"
                   placeholder="work, personal, important"
                 />
               </div>
-              <div className="flex items-center gap-2">
+              <div className="form-group flex items-center gap-2">
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={isPinned}
                     onChange={(e) => setIsPinned(e.target.checked)}
-                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                    className="w-4 h-4 text-primary border-border rounded focus:ring-primary"
                   />
-                  <span className="text-sm text-gray-700">Pin to top</span>
+                  <span className="text-sm text-foreground">Pin to top</span>
                 </label>
               </div>
             </form>
           ) : (
             <div className="prose prose-sm max-w-none">
-              <div className="whitespace-pre-wrap font-mono text-gray-800 leading-relaxed">
+              <div className="whitespace-pre-wrap font-mono text-foreground leading-relaxed">
                 {note.content || '<empty>'}
               </div>
               {note.tags.length > 0 && (
-                <div className="mt-4 flex flex-wrap gap-2">
+                <div className="tags mt-4">
                   {note.tags.map(tag => (
-                    <span key={tag} className="inline-flex items-center gap-1 px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-full">
+                    <span key={tag} className="badge badge-primary">
                       <Hash className="w-3 h-3" />
                       {tag}
                     </span>

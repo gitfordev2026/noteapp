@@ -189,6 +189,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       dispatch({ type: 'SET_FILES', payload: [] });
     } catch (e) {
       dispatch({ type: 'SET_ERROR', payload: 'Failed to initialize' });
+      dispatch({ type: 'SET_LOADING', payload: false });
     }
   };
 
@@ -217,6 +218,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       dispatch({ type: 'SET_FILES', payload: files });
     } catch (e) {
       dispatch({ type: 'SET_ERROR', payload: e instanceof Error ? e.message : 'Failed to unlock' });
+      dispatch({ type: 'SET_LOADING', payload: false });
     }
   };
 
@@ -270,6 +272,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       });
     } catch (e) {
       dispatch({ type: 'SET_ERROR', payload: e instanceof Error ? e.message : 'Failed to change PIN' });
+      dispatch({ type: 'SET_LOADING', payload: false });
     }
   };
 
